@@ -21,8 +21,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn, formatExternalUrl } from "@/lib/utils";
-import { mockTournaments } from "@/lib/mock-data";
-import { getLocalRegistrations } from "@/utils/local-registrations";
 
 const statusLabels: Record<string, string> = {
   live: "LIVE",
@@ -44,35 +42,13 @@ export default function TournamentDetail() {
   const { data: tournament, isLoading } = useQuery({
     queryKey: ["tournament", id],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("tournaments")
-          .select("*")
-          .eq("id", id)
-          .single();
-        if (data) return data;
-      } catch (e) {
-        console.warn("Tournament detail fallback active");
-      }
-      const mock = mockTournaments.find((t) => t.id === id) || mockTournaments[0];
-      if (!mock) return null;
-      return {
-        id: mock.id,
-        title: mock.title,
-        description: mock.description,
-        game: mock.game,
-        game_id: mock.game,
-        format: mock.format,
-        status: mock.status,
-        entry_fee: mock.entryFee,
-        prize_pool: mock.prizePool,
-        max_participants: mock.maxParticipants,
-        current_participants: mock.currentParticipants,
-        start_date: mock.startDate.toISOString(),
-        registration_deadline: mock.registrationDeadline.toISOString(),
-        image_url: mock.imageUrl,
-        rules: mock.rules,
-      };
+      const { data, error } = await supabase
+        .from("tournaments")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
     },
     enabled: !!id,
   });
@@ -150,27 +126,14 @@ export default function TournamentDetail() {
   const { data: registrations } = useQuery({
     queryKey: ["registrations", id],
     queryFn: async () => {
-      let regsData: any[] = [];
-      try {
-        const { data } = await supabase
-          .from("registrations")
-          .select("*")
-          .eq("tournament_id", id);
-        regsData = data || [];
-      } catch (e) {
-        console.warn("Fetch registrations error:", e);
-      }
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .eq("tournament_id", id);
+      if (error) throw error;
+      const regsData = data ?? [];
 
-      // Merge local registrations
-      const localRegs = getLocalRegistrations().filter((r) => r.tournament_id === id);
-      const userIdsInDb = new Set(regsData.map((r) => r.user_id));
-      for (const lr of localRegs) {
-        if (!userIdsInDb.has(lr.user_id)) {
-          regsData.push(lr);
-        }
-      }
-
-      if (!regsData || regsData.length === 0) return [];
+      if (regsData.length === 0) return [];
 
       const userIds = [...new Set(regsData.map((r) => r.user_id))];
       const { data: profiles } = await supabase
@@ -192,23 +155,14 @@ export default function TournamentDetail() {
     queryKey: ["user-registration", id, user?.id],
     queryFn: async () => {
       if (!user) return null;
-      try {
-        const { data } = await supabase
-          .from("registrations")
-          .select("*")
-          .eq("tournament_id", id)
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (data) return data;
-      } catch (e) {
-        console.warn("Error fetching user registration:", e);
-      }
-
-      // Check local fallback
-      const localRegs = getLocalRegistrations();
-      const local = localRegs.find((r) => r.tournament_id === id && r.user_id === user.id);
-      return local || null;
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .eq("tournament_id", id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
     },
     enabled: !!id && !!user,
   });

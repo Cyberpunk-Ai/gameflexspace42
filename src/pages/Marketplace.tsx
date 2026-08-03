@@ -35,7 +35,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Store, Plus, Search, User, Tag, MessageCircle, Loader2 } from "lucide-react";
 import { ContactSellerModal } from "@/components/contact-seller-modal";
-import { mockMarketplaceListings } from "@/lib/mock-data";
 
 const categoryIcons: Record<string, string> = {
   account: "👤",
@@ -65,28 +64,13 @@ const Marketplace = () => {
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["marketplace-listings"],
     queryFn: async () => {
-      try {
-        const { data } = await supabase
-          .from("marketplace_listings")
-          .select("*")
-          .eq("status", "active")
-          .order("created_at", { ascending: false });
-        if (data && data.length > 0) return data;
-      } catch (e) {
-        console.warn("Marketplace fallback active");
-      }
-      return mockMarketplaceListings.map((m) => ({
-        id: m.id,
-        user_id: m.sellerId,
-        seller_id: m.sellerId,
-        title: m.title,
-        description: m.description,
-        category: m.category === "accounts" ? "account" : "items",
-        price: m.price,
-        image_url: m.imageUrl,
-        status: m.status,
-        created_at: m.createdAt.toISOString(),
-      }));
+      const { data, error } = await supabase
+        .from("marketplace_listings")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
     },
   });
 

@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { supabase } from "@/integrations/supabase/client";
-import { saveLocalRegistration } from "@/utils/local-registrations";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Tournament = Database["public"]["Tables"]["tournaments"]["Row"];
@@ -121,54 +120,13 @@ export class TournamentService {
         .select()
         .single();
 
-      if (!error && data) {
-        saveLocalRegistration(data as any);
-        return { registration: data as Registration };
-      }
-
-      // Retry without explicit status
-      const { data: retryData, error: retryError } = await supabase
-        .from("registrations")
-        .insert({
-          tournament_id: tournamentId,
-          user_id: userId,
-          game_handle: gameHandle,
-          payment_id: paymentId,
-        } as any)
-        .select()
-        .single();
-
-      if (!retryError && retryData) {
-        saveLocalRegistration(retryData as any);
-        return { registration: retryData as Registration };
-      }
-
-      // Local fallback
-      const localReg = {
-        id: `reg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        user_id: userId,
-        tournament_id: tournamentId,
-        game_handle: gameHandle,
-        payment_id: paymentId || null,
-        status: "pending" as const,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      saveLocalRegistration(localReg);
-      return { registration: localReg as any };
+      if (error) throw error;
+      return { registration: data as Registration };
     } catch (err: any) {
-      const localReg = {
-        id: `reg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        user_id: userId,
-        tournament_id: tournamentId,
-        game_handle: gameHandle,
-        payment_id: paymentId || null,
-        status: "pending" as const,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+      return {
+        registration: null,
+        error: err instanceof Error ? err : new Error(String(err)),
       };
-      saveLocalRegistration(localReg);
-      return { registration: localReg as any };
     }
   }
 

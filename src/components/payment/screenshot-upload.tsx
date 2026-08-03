@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { saveLocalRegistration, saveLocalPayment } from "@/utils/local-registrations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -93,7 +92,6 @@ export function ScreenshotUpload({
       }
 
       // Create payment record
-      let paymentId: string | null = null;
       const { data: payment, error: paymentError } = await supabase
         .from("payments")
         .insert({
@@ -108,39 +106,8 @@ export function ScreenshotUpload({
         .select()
         .single();
 
-      if (!paymentError && payment) {
-        paymentId = payment.id;
-      } else {
-        const { data: retryPay, error: retryPayErr } = await supabase
-          .from("payments")
-          .insert({
-            user_id: activeUser.id,
-            tournament_id: tournamentId,
-            amount: entryFee,
-            method: "mpesa",
-            transaction_code: transactionCode.trim().toUpperCase(),
-            screenshot_url: screenshotUrl,
-          })
-          .select()
-          .single();
-
-        if (!retryPayErr && retryPay) {
-          paymentId = retryPay.id;
-        } else {
-          paymentId = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-          saveLocalPayment({
-            id: paymentId,
-            user_id: activeUser.id,
-            tournament_id: tournamentId,
-            amount: entryFee,
-            method: "mpesa",
-            transaction_code: transactionCode.trim().toUpperCase(),
-            screenshot_url: screenshotUrl,
-            status: "pending",
-            created_at: new Date().toISOString(),
-          });
-        }
-      }
+      if (paymentError || !payment) throw paymentError ?? new Error("Payment could not be saved");
+      const paymentId = payment.id;
 
       // Create registration
       const gameHandle = activeUser.user_metadata?.username ?? "Player";
@@ -152,35 +119,7 @@ export function ScreenshotUpload({
         game_handle: gameHandle,
       });
 
-      if (regError) {
-        // Try retry without status
-        const { error: retryReg1 } = await supabase.from("registrations").insert({
-          user_id: activeUser.id,
-          tournament_id: tournamentId,
-          payment_id: paymentId,
-          game_handle: gameHandle,
-        });
-
-        if (retryReg1) {
-          await supabase.from("registrations").insert({
-            user_id: activeUser.id,
-            tournament_id: tournamentId,
-            game_handle: gameHandle,
-          });
-        }
-      }
-
-      // Always save local registration
-      saveLocalRegistration({
-        id: `reg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        user_id: activeUser.id,
-        tournament_id: tournamentId,
-        game_handle: gameHandle,
-        payment_id: paymentId,
-        status: "pending",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
+      if (regError) throw regError;
 
       return paymentId;
     },

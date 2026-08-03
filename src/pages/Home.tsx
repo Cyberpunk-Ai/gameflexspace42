@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TournamentCard } from "@/components/tournament-card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mockTournaments, mockLeaderboard } from "@/lib/mock-data";
 import { getGamerAvatar } from "@/constants/avatars";
 
 const features = [
@@ -44,34 +43,14 @@ export default function Home() {
   const { data: tournaments = [], isLoading: tournamentsLoading } = useQuery({
     queryKey: ["home-tournaments"],
     queryFn: async () => {
-      try {
-        const { data } = await supabase
-          .from("tournaments")
-          .select("*")
-          .in("status", ["live", "registration_open", "upcoming"])
-          .order("start_date", { ascending: true })
-          .limit(6);
-        if (data && data.length > 0) return data;
-      } catch (e) {
-        console.warn("Supabase tournaments fallback active");
-      }
-      return mockTournaments.map((t) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        game: t.game,
-        game_id: t.game,
-        format: t.format,
-        status: t.status,
-        entry_fee: t.entryFee,
-        prize_pool: t.prizePool,
-        max_participants: t.maxParticipants,
-        current_participants: t.currentParticipants,
-        start_date: t.startDate.toISOString(),
-        registration_deadline: t.registrationDeadline.toISOString(),
-        image_url: t.imageUrl,
-        rules: t.rules,
-      }));
+      const { data, error } = await supabase
+        .from("tournaments")
+        .select("*")
+        .in("status", ["live", "registration_open", "upcoming"])
+        .order("start_date", { ascending: true })
+        .limit(6);
+      if (error) throw error;
+      return data ?? [];
     },
   });
 
@@ -92,39 +71,26 @@ export default function Home() {
   const { data: leaderboard = [], isLoading: leaderboardLoading } = useQuery({
     queryKey: ["home-leaderboard"],
     queryFn: async () => {
-      try {
-        const { data: statsData } = await supabase
-          .from("leaderboard_stats")
-          .select("*")
-          .order("points", { ascending: false })
-          .limit(5);
+      const { data: statsData, error } = await supabase
+        .from("leaderboard_stats")
+        .select("*")
+        .order("points", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      if (!statsData || statsData.length === 0) return [];
 
-        if (statsData && statsData.length > 0) {
-          const userIds = [...new Set(statsData.map((s) => s.user_id))];
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, username, avatar_url, game_handle")
-            .in("user_id", userIds);
+      const userIds = [...new Set(statsData.map((s) => s.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, username, avatar_url, game_handle")
+        .in("user_id", userIds);
 
-          const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
 
-          return statsData.map((s) => ({
-            ...s,
-            profiles: profileMap.get(s.user_id),
-          }));
-        }
-      } catch (e) {
-        console.warn("Leaderboard fallback active");
-      }
-      return mockLeaderboard.slice(0, 5).map((m) => ({
-        user_id: m.user_id,
-        points: m.points,
-        rank: m.rank,
-        profiles: {
-          username: m.username,
-          avatar_url: getGamerAvatar(m.username),
-          game_handle: m.game_handle,
-        },
+      return statsData.map((s, i) => ({
+        ...s,
+        rank: i + 1,
+        profiles: profileMap.get(s.user_id),
       }));
     },
   });

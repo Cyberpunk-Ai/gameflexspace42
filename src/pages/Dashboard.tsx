@@ -22,7 +22,6 @@ import { QuickActions } from "@/components/quick-actions";
 import { AchievementsDisplay } from "@/components/achievements-display";
 import { ActivityFeed } from "@/components/activity-feed";
 import { EditProfileModal } from "@/components/profile/edit-profile-modal";
-import { getLocalRegistrations } from "@/utils/local-registrations";
 
 export default function Dashboard() {
   const { user, profile, isAuthenticated } = useAuth();
@@ -32,28 +31,14 @@ export default function Dashboard() {
     queryKey: ["user-registrations", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      let dbData: any[] = [];
-      try {
-        const { data } = await supabase
-          .from("registrations")
-          .select("*, tournaments(*)")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(5);
-        dbData = data ?? [];
-      } catch (e) {
-        console.warn("Fetch dashboard registrations error:", e);
-      }
-
-      const localRegs = getLocalRegistrations().filter((r) => r.user_id === user.id);
-      const dbTourneyIds = new Set(dbData.map((d) => d.tournament_id));
-      for (const lr of localRegs) {
-        if (!dbTourneyIds.has(lr.tournament_id)) {
-          dbData.push(lr);
-        }
-      }
-
-      return dbData;
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*, tournaments(*)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data ?? [];
     },
     enabled: !!user,
   });

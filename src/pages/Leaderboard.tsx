@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { FollowButton } from "@/components/social/follow-button";
-import { mockLeaderboard } from "@/lib/mock-data";
 import { getGamerAvatar } from "@/constants/avatars";
 
 export default function Leaderboard() {
@@ -25,45 +24,26 @@ export default function Leaderboard() {
   } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
-      try {
-        const { data: statsData } = await supabase
-          .from("leaderboard_stats")
-          .select("*")
-          .order("points", { ascending: false })
-          .limit(50);
+      const { data: statsData, error } = await supabase
+        .from("leaderboard_stats")
+        .select("*")
+        .order("points", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      if (!statsData || statsData.length === 0) return [];
 
-        if (statsData && statsData.length > 0) {
-          const userIds = [...new Set(statsData.map((s) => s.user_id))];
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, username, avatar_url, game_handle, phone, bio")
-            .in("user_id", userIds);
+      const userIds = [...new Set(statsData.map((s) => s.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, username, avatar_url, game_handle, phone, bio")
+        .in("user_id", userIds);
 
-          const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
 
-          return statsData.map((s) => ({
-            ...s,
-            profiles: profileMap.get(s.user_id),
-          }));
-        }
-      } catch (e) {
-        console.warn("Leaderboard fallback active");
-      }
-      return mockLeaderboard.map((m) => ({
-        user_id: m.user_id,
-        points: m.points,
-        rank: m.rank,
-        tournaments_played: Math.floor(m.points / 300) + 2,
-        tournaments_won: Math.floor(m.points / 900) + 1,
-        wins: Math.floor(m.points / 150),
-        losses: Math.floor(m.points / 400),
-        profiles: {
-          username: m.username,
-          avatar_url: getGamerAvatar(m.username),
-          game_handle: m.game_handle,
-          phone: "+2547****" + (1000 + ((m.rank * 137) % 8999)),
-          bio: "Pro esports competitor & team strategist.",
-        },
+      return statsData.map((s, i) => ({
+        ...s,
+        rank: i + 1,
+        profiles: profileMap.get(s.user_id),
       }));
     },
   });
