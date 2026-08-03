@@ -28,33 +28,13 @@ export default function Tournaments() {
   const { data: tournaments = [], isLoading } = useQuery({
     queryKey: ["tournaments"],
     queryFn: async () => {
-      try {
-        const { data } = await supabase
-          .from("tournaments")
-          .select("*")
-          .limit(60)
-          .order("created_at", { ascending: false });
-        if (data && data.length > 0) return data;
-      } catch (e) {
-        console.warn("Tournaments list fallback active");
-      }
-      return mockTournaments.map((t) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        game: t.game,
-        game_id: t.game,
-        format: t.format,
-        status: t.status,
-        entry_fee: t.entryFee,
-        prize_pool: t.prizePool,
-        max_participants: t.maxParticipants,
-        current_participants: t.currentParticipants,
-        start_date: t.startDate.toISOString(),
-        registration_deadline: t.registrationDeadline.toISOString(),
-        image_url: t.imageUrl,
-        rules: t.rules,
-      }));
+      const { data, error } = await supabase
+        .from("tournaments")
+        .select("*")
+        .limit(60)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
     },
   });
 
