@@ -22,7 +22,6 @@ import { QuickActions } from "@/components/quick-actions";
 import { AchievementsDisplay } from "@/components/achievements-display";
 import { ActivityFeed } from "@/components/activity-feed";
 import { EditProfileModal } from "@/components/profile/edit-profile-modal";
-import { getLocalRegistrations } from "@/utils/local-registrations";
 
 export default function Dashboard() {
   const { user, profile, isAuthenticated } = useAuth();
