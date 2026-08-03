@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Gamepad2, Copy, Clock, Monitor, Smartphone, Laptop, Tv } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from "date-fns";
-import { mockGameRooms } from "@/lib/mock-data";
 
 const platformIcons: Record<string, React.ReactNode> = {
   playstation: <Tv className="w-5 h-5" />,

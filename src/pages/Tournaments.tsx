@@ -14,7 +14,6 @@ import { TournamentCard } from "@/components/tournament-card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mockTournaments } from "@/lib/mock-data";
 
 const games = ["all", "fifa", "cod", "pubg", "fortnite", "apex", "valorant"];
 const statuses = ["all", "live", "registration_open", "upcoming", "completed"];

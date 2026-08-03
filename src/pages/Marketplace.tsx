@@ -35,7 +35,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Store, Plus, Search, User, Tag, MessageCircle, Loader2 } from "lucide-react";
 import { ContactSellerModal } from "@/components/contact-seller-modal";
-import { mockMarketplaceListings } from "@/lib/mock-data";
 
 const categoryIcons: Record<string, string> = {
   account: "👤",
