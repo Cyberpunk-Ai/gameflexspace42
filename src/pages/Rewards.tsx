@@ -133,13 +133,13 @@ const Rewards = () => {
             <Gift className="w-8 h-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold font-display">Rewards</h1>
-              <p className="text-muted-foreground flex items-center gap-2">
+              <div className="text-muted-foreground flex items-center gap-2">
                 Your earnings and prizes
                 <Badge variant="outline" className="ml-2 text-xs gap-1">
                   <Zap className="h-3 w-3 text-green-500" />
                   Live Updates
                 </Badge>
-              </p>
+              </div>
             </div>
           </div>
         </div>
