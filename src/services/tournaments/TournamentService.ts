@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { supabase } from "@/integrations/supabase/client";
-import { saveLocalRegistration } from "@/utils/local-registrations";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Tournament = Database["public"]["Tables"]["tournaments"]["Row"];
