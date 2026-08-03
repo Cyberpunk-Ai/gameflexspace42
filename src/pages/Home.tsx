@@ -92,39 +92,26 @@ export default function Home() {
   const { data: leaderboard = [], isLoading: leaderboardLoading } = useQuery({
     queryKey: ["home-leaderboard"],
     queryFn: async () => {
-      try {
-        const { data: statsData } = await supabase
-          .from("leaderboard_stats")
-          .select("*")
-          .order("points", { ascending: false })
-          .limit(5);
+      const { data: statsData, error } = await supabase
+        .from("leaderboard_stats")
+        .select("*")
+        .order("points", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      if (!statsData || statsData.length === 0) return [];
 
-        if (statsData && statsData.length > 0) {
-          const userIds = [...new Set(statsData.map((s) => s.user_id))];
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, username, avatar_url, game_handle")
-            .in("user_id", userIds);
+      const userIds = [...new Set(statsData.map((s) => s.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, username, avatar_url, game_handle")
+        .in("user_id", userIds);
 
-          const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
 
-          return statsData.map((s) => ({
-            ...s,
-            profiles: profileMap.get(s.user_id),
-          }));
-        }
-      } catch (e) {
-        console.warn("Leaderboard fallback active");
-      }
-      return mockLeaderboard.slice(0, 5).map((m) => ({
-        user_id: m.user_id,
-        points: m.points,
-        rank: m.rank,
-        profiles: {
-          username: m.username,
-          avatar_url: getGamerAvatar(m.username),
-          game_handle: m.game_handle,
-        },
+      return statsData.map((s, i) => ({
+        ...s,
+        rank: i + 1,
+        profiles: profileMap.get(s.user_id),
       }));
     },
   });
