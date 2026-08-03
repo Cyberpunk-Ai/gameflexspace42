@@ -83,6 +83,33 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          properties: Json | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -780,6 +807,35 @@ export type Database = {
           },
         ]
       }
+      status_saves: {
+        Row: {
+          created_at: string
+          id: string
+          status_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_saves_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "user_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assigned_to: string | null
@@ -1077,7 +1133,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_followers: {
+        Row: {
+          created_at: string | null
+          follower_id: string | null
+          following_id: string | null
+          id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
