@@ -128,103 +128,33 @@ export function PaymentModal({ tournament, isOpen, onClose, onSuccess }: Payment
       }
 
       // 1. Create payment record
-      let paymentId: string | null = null;
-      const paymentPayload = {
-        user_id: activeUser.id,
-        tournament_id: tournament.id,
-        amount: tournament.entryFee,
-        method: "mpesa",
-        transaction_code: transactionCode.trim().toUpperCase(),
-        screenshot_url: screenshotUrl,
-        status: "pending" as const,
-      };
-
       const { data: payment, error: paymentError } = await supabase
         .from("payments")
-        .insert(paymentPayload)
+        .insert({
+          user_id: activeUser.id,
+          tournament_id: tournament.id,
+          amount: tournament.entryFee,
+          method: "mpesa",
+          transaction_code: transactionCode.trim().toUpperCase(),
+          screenshot_url: screenshotUrl,
+          status: "pending" as const,
+        })
         .select()
         .single();
 
-      if (!paymentError && payment) {
-        paymentId = payment.id;
-      } else {
-        console.warn("Payment insert issue, trying without explicit status:", paymentError);
-        const { data: retryPay, error: retryPayErr } = await supabase
-          .from("payments")
-          .insert({
-            user_id: activeUser.id,
-            tournament_id: tournament.id,
-            amount: tournament.entryFee,
-            method: "mpesa",
-            transaction_code: transactionCode.trim().toUpperCase(),
-            screenshot_url: screenshotUrl,
-          })
-          .select()
-          .single();
-
-        if (!retryPayErr && retryPay) {
-          paymentId = retryPay.id;
-        } else {
-          // Fallback local payment ID
-          paymentId = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-          saveLocalPayment({
-            id: paymentId,
-            user_id: activeUser.id,
-            tournament_id: tournament.id,
-            amount: tournament.entryFee,
-            method: "mpesa",
-            transaction_code: transactionCode.trim().toUpperCase(),
-            screenshot_url: screenshotUrl,
-            status: "pending",
-            created_at: new Date().toISOString(),
-          });
-        }
-      }
+      if (paymentError || !payment) throw paymentError ?? new Error("Payment could not be saved");
+      const paymentId = payment.id;
 
       // 2. Create registration record
-      const regPayload = {
+      const { error: regError } = await supabase.from("registrations").insert({
         user_id: activeUser.id,
         tournament_id: tournament.id,
         game_handle: gameHandle.trim(),
         payment_id: paymentId,
         status: "pending" as const,
-      };
-
-      const { error: regError } = await supabase
-        .from("registrations")
-        .insert(regPayload);
-
-      if (regError) {
-        console.warn("Registrations insert error/RLS, trying retries:", regError);
-        // Retry 1: omit status
-        const { error: retry1 } = await supabase.from("registrations").insert({
-          user_id: activeUser.id,
-          tournament_id: tournament.id,
-          game_handle: gameHandle.trim(),
-          payment_id: paymentId,
-        });
-
-        if (retry1) {
-          // Retry 2: minimal insert
-          await supabase.from("registrations").insert({
-            user_id: activeUser.id,
-            tournament_id: tournament.id,
-            game_handle: gameHandle.trim(),
-          });
-        }
-      }
-
-      // Always save to local registration store to guarantee UI state persistence
-      saveLocalRegistration({
-        id: `reg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        user_id: activeUser.id,
-        tournament_id: tournament.id,
-        game_handle: gameHandle.trim(),
-        payment_id: paymentId,
-        status: "pending",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
+
+      if (regError) throw regError;
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ["user-registration"] });
