@@ -143,14 +143,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (isSuperAdmin) {
       setIsAdmin(true);
-      // Auto-heal admin role in DB if missing/wiped
-      try {
-        await supabase
-          .from("user_roles")
-          .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
-      } catch (e) {
-        // Even if DB fails or table is missing, super admin access is preserved in code
-      }
       return;
     }
 
