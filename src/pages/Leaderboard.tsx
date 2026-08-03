@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { FollowButton } from "@/components/social/follow-button";
-import { mockLeaderboard } from "@/lib/mock-data";
 import { getGamerAvatar } from "@/constants/avatars";
 
 export default function Leaderboard() {
