@@ -192,23 +192,14 @@ export default function TournamentDetail() {
     queryKey: ["user-registration", id, user?.id],
     queryFn: async () => {
       if (!user) return null;
-      try {
-        const { data } = await supabase
-          .from("registrations")
-          .select("*")
-          .eq("tournament_id", id)
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (data) return data;
-      } catch (e) {
-        console.warn("Error fetching user registration:", e);
-      }
-
-      // Check local fallback
-      const localRegs = getLocalRegistrations();
-      const local = localRegs.find((r) => r.tournament_id === id && r.user_id === user.id);
-      return local || null;
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .eq("tournament_id", id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
     },
     enabled: !!id && !!user,
   });
