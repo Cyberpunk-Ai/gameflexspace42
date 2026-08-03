@@ -162,7 +162,7 @@ export default function Leaderboard() {
                 const winRate = getWinRate(player.wins ?? 0, player.losses ?? 0);
                 return (
                   <div
-                    key={player.id}
+                    key={player.id ?? player.user_id ?? index}
                     className={`relative rounded-2xl p-6 text-center transition-transform hover:scale-[1.02] ${
                       index === 0
                         ? "bg-gradient-to-br from-yellow-500/20 via-yellow-600/10 to-yellow-900/20 border-yellow-500/40 md:order-2 shadow-lg shadow-yellow-500/10"
@@ -287,7 +287,7 @@ export default function Leaderboard() {
                 const winRate = getWinRate(player.wins ?? 0, player.losses ?? 0);
                 return (
                   <div
-                    key={player.id}
+                    key={player.id ?? player.user_id ?? index}
                     className={`grid grid-cols-2 md:grid-cols-12 gap-4 p-4 border-t border-border/50 items-center hover:bg-secondary/30 transition-colors ${
                       index < 3 ? "bg-primary/5" : ""
                     }`}
