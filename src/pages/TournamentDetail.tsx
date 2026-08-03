@@ -150,27 +150,14 @@ export default function TournamentDetail() {
   const { data: registrations } = useQuery({
     queryKey: ["registrations", id],
     queryFn: async () => {
-      let regsData: any[] = [];
-      try {
-        const { data } = await supabase
-          .from("registrations")
-          .select("*")
-          .eq("tournament_id", id);
-        regsData = data || [];
-      } catch (e) {
-        console.warn("Fetch registrations error:", e);
-      }
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .eq("tournament_id", id);
+      if (error) throw error;
+      const regsData = data ?? [];
 
-      // Merge local registrations
-      const localRegs = getLocalRegistrations().filter((r) => r.tournament_id === id);
-      const userIdsInDb = new Set(regsData.map((r) => r.user_id));
-      for (const lr of localRegs) {
-        if (!userIdsInDb.has(lr.user_id)) {
-          regsData.push(lr);
-        }
-      }
-
-      if (!regsData || regsData.length === 0) return [];
+      if (regsData.length === 0) return [];
 
       const userIds = [...new Set(regsData.map((r) => r.user_id))];
       const { data: profiles } = await supabase
