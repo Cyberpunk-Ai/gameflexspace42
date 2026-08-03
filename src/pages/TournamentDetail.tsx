@@ -44,35 +44,13 @@ export default function TournamentDetail() {
   const { data: tournament, isLoading } = useQuery({
     queryKey: ["tournament", id],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("tournaments")
-          .select("*")
-          .eq("id", id)
-          .single();
-        if (data) return data;
-      } catch (e) {
-        console.warn("Tournament detail fallback active");
-      }
-      const mock = mockTournaments.find((t) => t.id === id) || mockTournaments[0];
-      if (!mock) return null;
-      return {
-        id: mock.id,
-        title: mock.title,
-        description: mock.description,
-        game: mock.game,
-        game_id: mock.game,
-        format: mock.format,
-        status: mock.status,
-        entry_fee: mock.entryFee,
-        prize_pool: mock.prizePool,
-        max_participants: mock.maxParticipants,
-        current_participants: mock.currentParticipants,
-        start_date: mock.startDate.toISOString(),
-        registration_deadline: mock.registrationDeadline.toISOString(),
-        image_url: mock.imageUrl,
-        rules: mock.rules,
-      };
+      const { data, error } = await supabase
+        .from("tournaments")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      return data ?? null;
     },
     enabled: !!id,
   });
