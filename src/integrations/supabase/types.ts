@@ -23,7 +23,44 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      game_type:
+        | "fifa"
+        | "cod"
+        | "pubg"
+        | "fortnite"
+        | "apex"
+        | "valorant"
+        | "other"
+      listing_category: "account" | "items" | "coaching" | "other"
+      listing_status: "active" | "sold" | "cancelled"
+      match_status: "scheduled" | "live" | "completed" | "cancelled"
+      notification_type:
+        | "tournament"
+        | "payment"
+        | "match"
+        | "system"
+        | "whatsapp"
+        | "squad"
+      payment_status: "pending" | "verified" | "rejected" | "refunded"
+      platform_type: "playstation" | "xbox" | "pc" | "mobile"
+      registration_status: "pending" | "confirmed" | "cancelled" | "checked_in"
+      reward_type: "prize" | "bonus" | "referral" | "achievement"
+      squad_invite_status: "pending" | "accepted" | "rejected" | "cancelled"
+      ticket_priority: "low" | "medium" | "high" | "urgent"
+      ticket_status: "open" | "in_progress" | "resolved" | "closed"
+      tournament_format:
+        | "single_elimination"
+        | "double_elimination"
+        | "round_robin"
+        | "swiss"
+      tournament_status:
+        | "upcoming"
+        | "registration_open"
+        | "registration_closed"
+        | "live"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +187,49 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      game_type: [
+        "fifa",
+        "cod",
+        "pubg",
+        "fortnite",
+        "apex",
+        "valorant",
+        "other",
+      ],
+      listing_category: ["account", "items", "coaching", "other"],
+      listing_status: ["active", "sold", "cancelled"],
+      match_status: ["scheduled", "live", "completed", "cancelled"],
+      notification_type: [
+        "tournament",
+        "payment",
+        "match",
+        "system",
+        "whatsapp",
+        "squad",
+      ],
+      payment_status: ["pending", "verified", "rejected", "refunded"],
+      platform_type: ["playstation", "xbox", "pc", "mobile"],
+      registration_status: ["pending", "confirmed", "cancelled", "checked_in"],
+      reward_type: ["prize", "bonus", "referral", "achievement"],
+      squad_invite_status: ["pending", "accepted", "rejected", "cancelled"],
+      ticket_priority: ["low", "medium", "high", "urgent"],
+      ticket_status: ["open", "in_progress", "resolved", "closed"],
+      tournament_format: [
+        "single_elimination",
+        "double_elimination",
+        "round_robin",
+        "swiss",
+      ],
+      tournament_status: [
+        "upcoming",
+        "registration_open",
+        "registration_closed",
+        "live",
+        "completed",
+        "cancelled",
+      ],
+    },
   },
 } as const
