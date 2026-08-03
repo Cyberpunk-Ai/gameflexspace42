@@ -11,7 +11,9 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { SUPABASE_ORIGIN } from "@/integrations/supabase/client";
+const SUPABASE_ORIGIN = new URL(
+  import.meta.env.VITE_SUPABASE_URL ?? "https://supabase.co",
+).origin;
 
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
