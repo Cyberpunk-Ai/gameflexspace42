@@ -21,8 +21,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn, formatExternalUrl } from "@/lib/utils";
-import { mockTournaments } from "@/lib/mock-data";
-import { getLocalRegistrations } from "@/utils/local-registrations";
 
 const statusLabels: Record<string, string> = {
   live: "LIVE",
