@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TournamentCard } from "@/components/tournament-card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mockTournaments, mockLeaderboard } from "@/lib/mock-data";
 import { getGamerAvatar } from "@/constants/avatars";
 
 const features = [
