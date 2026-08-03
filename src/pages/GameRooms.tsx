@@ -25,39 +25,19 @@ const GameRooms = () => {
   const { data: gameRooms = [], isLoading } = useQuery({
     queryKey: ["game-rooms"],
     queryFn: async () => {
-      try {
-        const { data } = await supabase
-          .from("game_rooms")
-          .select(
-            `
-            *,
-            tournaments(title, game),
-            matches(round, match_number, player1_id, player2_id, status)
-          `,
-          )
-          .gte("expires_at", new Date().toISOString())
-          .order("created_at", { ascending: false });
-        if (data && data.length > 0) return data;
-      } catch (e) {
-        console.warn("GameRooms fallback active");
-      }
-      return mockGameRooms.map((gr) => ({
-        id: gr.id,
-        room_code: "ROOM-" + gr.id.toUpperCase(),
-        room_password: "PASS" + Math.floor(100 + Math.random() * 900),
-        platform: gr.game === "cod" || gr.game === "pubg" ? "mobile" : "playstation",
-        server_region: "EU-West (Kenya low ping)",
-        expires_at: new Date(Date.now() + 7200000).toISOString(),
-        created_at: gr.createdAt.toISOString(),
-        tournaments: { title: gr.name, game: gr.game },
-        matches: {
-          round: 1,
-          match_number: 1,
-          player1_id: gr.hostId,
-          player2_id: null,
-          status: "scheduled",
-        },
-      }));
+      const { data, error } = await supabase
+        .from("game_rooms")
+        .select(
+          `
+          *,
+          tournaments(title, game),
+          matches(round, match_number, player1_id, player2_id, status)
+        `,
+        )
+        .gte("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
     },
   });
 
