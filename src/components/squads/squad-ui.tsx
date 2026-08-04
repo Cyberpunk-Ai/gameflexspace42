@@ -205,7 +205,6 @@ export function InvitePlayerDialog({ squadId, squadName }: { squadId: string; sq
   const notify = useNotifyInvite();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
-  const [role, setRole] = useState<SquadRole>("player");
   const [message, setMessage] = useState("");
   const { data: results = [], isFetching } = usePlayerSearch(term);
 
@@ -244,24 +243,12 @@ export function InvitePlayerDialog({ squadId, squadName }: { squadId: string; sq
               className="pl-9"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Select value={role} onValueChange={(v) => setRole(v as SquadRole)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="player">Player</SelectItem>
-                <SelectItem value="sub">Substitute</SelectItem>
-                <SelectItem value="captain">Co-captain</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Note (optional)"
-              maxLength={80}
-            />
-          </div>
+          <Input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Add a note (optional)"
+            maxLength={80}
+          />
           <div className="rounded-xl border border-border/50 divide-y divide-border/30 max-h-64 overflow-y-auto">
             {term.trim().length < 2 ? (
               <p className="p-4 text-xs text-muted-foreground text-center">
