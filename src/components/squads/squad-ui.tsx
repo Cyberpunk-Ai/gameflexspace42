@@ -61,6 +61,7 @@ export function SquadCrest({
 export function RoleBadge({ role }: { role: SquadRole }) {
   const map: Record<SquadRole, { label: string; className: string; icon: any }> = {
     captain: { label: "Captain", className: "bg-primary/15 text-primary border-primary/30", icon: Crown },
+    co_captain: { label: "Co-captain", className: "bg-primary/10 text-primary border-primary/25", icon: Crown },
     player: { label: "Player", className: "bg-secondary text-foreground/80 border-border/50", icon: Users },
     sub: { label: "Sub", className: "bg-accent/15 text-accent border-accent/30", icon: Shield },
   };
@@ -81,12 +82,14 @@ export function CreateSquadDialog({ trigger }: { trigger?: React.ReactNode }) {
   const [game, setGame] = useState(GAME_TYPES[0].id);
   const [bio, setBio] = useState("");
   const [color, setColor] = useState(SQUAD_COLORS[0].value);
+  const [isPublic, setIsPublic] = useState(true);
 
-  const submit = () => {
+  const submit = async () => {
     if (!me) return toast.error("Sign in to create a squad");
     if (name.trim().length < 3) return toast.error("Squad name needs at least 3 characters");
     if (tag.trim().length < 2) return toast.error("Pick a 2–6 character clan tag");
-    squadStore.create({ name, tag, game, bio, color, owner: me });
+    const { error } = await squadStore.create({ name, tag, game, bio, color, isPublic, owner: me });
+    if (error) return toast.error(error);
     toast.success(`${name.trim()} is live. Invite your squadmates!`);
     setOpen(false);
     setName("");
@@ -174,6 +177,19 @@ export function CreateSquadDialog({ trigger }: { trigger?: React.ReactNode }) {
             </div>
           </div>
         </div>
+        <div className="flex items-start gap-3 rounded-xl border border-border/50 bg-secondary/30 p-3">
+          <input
+            id="squad-public"
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-primary"
+          />
+          <label htmlFor="squad-public" className="text-xs text-muted-foreground">
+            <span className="block font-semibold text-foreground">Discoverable squad</span>
+            Let other players find this squad and request to join. Captains approve every request.
+          </label>
+        </div>
         <DialogFooter>
           <Button onClick={submit} className="w-full gap-2">
             <Shield className="h-4 w-4" /> Create squad
@@ -195,12 +211,10 @@ export function InvitePlayerDialog({ squadId, squadName }: { squadId: string; sq
 
   const invite = async (player: any) => {
     if (!me) return toast.error("Sign in first");
-    const { error } = squadStore.invite(squadId, {
+    const { error } = await squadStore.invite(squadId, {
       toUserId: player.id,
       toUsername: player.username ?? "Player",
       fromUserId: me.userId,
-      fromUsername: me.username,
-      role,
       message: message.trim() || undefined,
     });
     if (error) return toast.error(error);

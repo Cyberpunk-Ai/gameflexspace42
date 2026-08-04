@@ -19,7 +19,7 @@ export function SquadChat({ squad }: { squad: any }) {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [squad.messages.length]);
+  }, [squad.messages?.length]);
 
   const send = (value: string) => {
     if (!me || !value.trim()) return;
@@ -27,7 +27,7 @@ export function SquadChat({ squad }: { squad: any }) {
     setText("");
   };
 
-  const pinned = squad.messages.filter((m: any) => m.pinned);
+  const pinned = (squad.messages ?? []).filter((m: any) => m.pinned);
 
   return (
     <div className="rounded-2xl border border-border/50 bg-card overflow-hidden flex flex-col h-[560px]">
@@ -46,7 +46,7 @@ export function SquadChat({ squad }: { squad: any }) {
       )}
 
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">
-        {squad.messages.map((m: any) => {
+        {(squad.messages ?? []).map((m: any) => {
           const mine = me && m.userId === me.userId;
           const system = m.userId === "system";
           if (system)
@@ -81,7 +81,7 @@ export function SquadChat({ squad }: { squad: any }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => squadStore.togglePin(squad.id, m.id)}
+                  onClick={() => squadStore.togglePin(squad.id, m.id, !!m.pinned)}
                   className="mt-1 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
                 >
                   {m.pinned ? "Unpin" : "Pin message"}

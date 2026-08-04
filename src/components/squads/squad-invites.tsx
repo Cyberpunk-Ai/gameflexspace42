@@ -15,8 +15,9 @@ export function SquadInvitesPanel({ compact = false }: { compact?: boolean }) {
 
   if (!me || invites.length === 0) return null;
 
-  const respond = (invite: any, accept: boolean) => {
-    squadStore.respondToInvite(invite.squadId, invite.id, accept, me);
+  const respond = async (invite: any, accept: boolean) => {
+    const { error } = await squadStore.respondToInvite(invite.id, accept);
+    if (error) return toast.error(error);
     if (accept) {
       toast.success(`Welcome to ${invite.squad.name}!`);
       navigate(`/teams/${invite.squadId}`);
