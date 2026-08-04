@@ -29,11 +29,11 @@ const features = [
 ];
 
 const games = [
-  { name: "FIFA 24", icon: "⚽", players: 450 },
+  { name: "FC 26", icon: "⚽", players: 450 },
   { name: "Call of Duty", icon: "🎯", players: 380 },
   { name: "PUBG Mobile", icon: "🔫", players: 320 },
   { name: "Fortnite", icon: "🏗️", players: 280 },
-  { name: "Apex Legends", icon: "🦊", players: 210 },
+  { name: "eFootball", icon: "🥅", players: 210 },
   { name: "Valorant", icon: "🎮", players: 190 },
 ];
 
@@ -129,8 +129,7 @@ export default function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Kenya's premier gaming tournament platform. Join thousands of gamers competing for
-              real cash prizes with M-Pesa payments.
+              The world's premier gaming ecosystem. Discover the complete gaming experience on one platform.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

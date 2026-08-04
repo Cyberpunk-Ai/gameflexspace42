@@ -79,12 +79,11 @@ export default function ReferralDashboard() {
   const totalInvited = userReferrals.length;
   const verifiedCount = userReferrals.filter((r) => r.status === "completed").length;
   const pendingCount = userReferrals.filter((r) => r.status === "pending").length;
-  const totalEarnedKES = verifiedCount * 150; // KES 150 per completed referral
 
   const code =
     profile?.referral_code || (user?.email ? user.email.split("@")[0].toUpperCase() : "GAMEFLEX");
   const baseUrl =
-    typeof window !== "undefined" ? window.location.origin : "https://gameflex.esports";
+    typeof window !== "undefined" ? window.location.origin : "https://gameflex.lovable.app";
   const referralLink = `${baseUrl}/register?ref=${code}`;
 
   const copyCode = async () => {
@@ -109,7 +108,7 @@ export default function ReferralDashboard() {
     }
   };
 
-  const shareText = `🎮 Join me on GameFlex Esports! Compete in FIFA, Mobile Legends, and Call of Duty tournaments to win cash prizes. Use my referral code ${code}: ${referralLink}`;
+  const shareText = `🎮 Join me on GameFlex! Compete in FC 26, eFootball and Call of Duty tournaments to win cash prizes. Use my referral code ${code}: ${referralLink}`;
 
   const shareWhatsApp = () => {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, "_blank");
@@ -121,7 +120,7 @@ export default function ReferralDashboard() {
 
   const shareTelegram = () => {
     window.open(
-      `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`🎮 Join GameFlex Esports with my code ${code}!`)}`,
+      `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`🎮 Join GameFlex with my code ${code}!`)}`,
       "_blank",
     );
   };
@@ -130,7 +129,7 @@ export default function ReferralDashboard() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join GameFlex Esports",
+          title: "Join GameFlex",
           text: shareText,
           url: referralLink,
         });
@@ -170,9 +169,7 @@ export default function ReferralDashboard() {
                 Referral <span className="text-primary">Dashboard</span>
               </h1>
               <p className="text-muted-foreground mt-1 max-w-xl text-sm sm:text-base">
-                Invite gamer friends to GameFlex. Earn{" "}
-                <span className="text-primary font-semibold">KES 150</span> for every verified
-                player added to your wallet!
+                Invite gamer friends to GameFlex and grow your crew — rewards land straight in your wallet.
               </p>
             </div>
 
@@ -183,10 +180,10 @@ export default function ReferralDashboard() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground uppercase font-medium">
-                  Total Referral Earnings
+                  Verified Referrals
                 </div>
                 <div className="text-2xl font-display font-bold text-primary">
-                  KES {totalEarnedKES.toLocaleString()}
+                  {verifiedCount.toLocaleString()}
                 </div>
                 <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                   <CheckCircle2 className="w-3 h-3 text-primary" /> {verifiedCount} verified
@@ -207,8 +204,7 @@ export default function ReferralDashboard() {
               <Share2 className="w-5 h-5 text-primary" /> Share Your Invite Link & Code
             </CardTitle>
             <CardDescription>
-              Send your link or code to friends. When they register and participate, KES 150 is
-              credited directly to you!
+              Send your link or code to friends. Rewards are credited once they register and play.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -381,7 +377,7 @@ export default function ReferralDashboard() {
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                   {searchQuery
                     ? "No matching gamers found for your search query."
-                    : "Share your link above to start inviting players and earning KES 150 per referral."}
+                    : "Share your link above to start inviting players and earning rewards."}
                 </p>
                 {!searchQuery && (
                   <Button variant="default" size="sm" onClick={copyLink} className="gap-2">
@@ -442,7 +438,7 @@ export default function ReferralDashboard() {
                             </Badge>
                           </td>
                           <td className="py-3 px-4 text-right font-display font-bold text-primary">
-                            {isCompleted ? "+ KES 150" : "KES 0"}
+                            {isCompleted ? "Verified" : "—"}
                           </td>
                         </tr>
                       );
@@ -488,7 +484,7 @@ export default function ReferralDashboard() {
               </div>
               <h4 className="font-semibold text-foreground">Earn Cash Rewards</h4>
               <p className="text-xs text-muted-foreground">
-                Receive KES 150 per friend directly into your GameFlex Wallet!
+                Rewards land directly in your GameFlex Wallet as friends get verified.
               </p>
             </div>
           </div>

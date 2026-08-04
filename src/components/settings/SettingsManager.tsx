@@ -1093,7 +1093,7 @@ export function SettingsManager({
                           </div>
                           <div>
                             <div className="font-semibold text-foreground text-sm">
-                              Earn KES 150 per Verified Referral
+                              Invite Friends & Earn Rewards
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Track stats, manage codes, and view invited gamers.
@@ -1165,7 +1165,7 @@ export function SettingsManager({
                         },
                         {
                           key: "promotions",
-                          title: "Esports News & Offers",
+                          title: "Gaming News & Offers",
                           desc: "Special tournament announcements and promotional rewards",
                         },
                       ].map((cat, idx, arr) => (

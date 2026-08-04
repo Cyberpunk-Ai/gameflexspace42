@@ -1,9 +1,9 @@
 export const GAME_TYPES = [
-  { id: "fifa", label: "EA FC (FIFA)", icon: "gamepad" },
+  { id: "fifa", label: "FC 26", icon: "gamepad" },
   { id: "cod", label: "Call of Duty", icon: "crosshair" },
   { id: "pubg", label: "PUBG Mobile", icon: "smartphone" },
   { id: "fortnite", label: "Fortnite", icon: "target" },
-  { id: "apex", label: "Apex Legends", icon: "crosshair" },
+  { id: "apex", label: "eFootball", icon: "gamepad" },
   { id: "valorant", label: "Valorant", icon: "crosshair" },
   { id: "other", label: "Other", icon: "joystick" },
 ] as const;

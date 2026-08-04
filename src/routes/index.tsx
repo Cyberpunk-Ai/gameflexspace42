@@ -6,7 +6,7 @@ import Page from "@/pages/Home";
 export const Route = createFileRoute("/")({
   head: () =>
     pageSeo({
-      title: "GameFlex Esports | Tournaments & Competitions",
+      title: "GameFlex | Tournaments & Competitions",
       description: "Compete in FIFA, Mobile Legends, and Call of Duty tournaments to win cash prizes.",
     }),
   component: Page,

@@ -104,7 +104,7 @@ const Auth = () => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold font-display">GameFlex</CardTitle>
-          <CardDescription>Kenya's Esports Community Hub</CardDescription>
+          <CardDescription>The world’s premier gaming ecosystem</CardDescription>
         </CardHeader>
 
         <CardContent>

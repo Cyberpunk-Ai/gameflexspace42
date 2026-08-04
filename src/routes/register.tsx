@@ -7,7 +7,7 @@ export const Route = createFileRoute("/register")({
   head: () =>
     pageSeo({
       title: "Register | GameFlex",
-      description: "Create a GameFlex account to start competing in esports tournaments.",
+      description: "Create a GameFlex account to start competing in gaming tournaments.",
       noindex: true,
     }),
   component: Page,

@@ -1,7 +1,7 @@
 export function pageSeo({ title, description }: { title?: string; description?: string } = {}) {
   return {
     meta: [
-      { title: title ? `${title} | GameFlex Esports` : "GameFlex Esports" },
+      { title: title ? `${title} | GameFlex` : "GameFlex" },
       {
         name: "description",
         content:
