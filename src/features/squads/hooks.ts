@@ -1,14 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { squadStore, type Squad } from "./store";
 
-/** Re-renders whenever squad data changes (this tab or another one). */
-function useSquadVersion() {
-  const [version, setVersion] = useState(0);
-  useEffect(() => squadStore.subscribe(() => setVersion((v) => v + 1)), []);
-  return version;
+/** Invalidate squad queries whenever the store mutates (this tab or realtime). */
+function useSquadSync() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const refresh = () => qc.invalidateQueries({ queryKey: ["squads"] });
+    const off = squadStore.subscribe(refresh);
+    const channel = supabase
+      .channel("squads-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "squad_messages" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "squad_members" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "squad_invites" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "squad_join_requests" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "squad_events" }, refresh)
+      .subscribe();
+    return () => {
+      off();
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
 }
 
 export function useCurrentPlayer() {
@@ -26,33 +40,57 @@ export function useCurrentPlayer() {
   );
 }
 
+/** Squads the signed-in player belongs to. */
 export function useSquads() {
-  const version = useSquadVersion();
+  useSquadSync();
   const me = useCurrentPlayer();
-  return useMemo(
-    () => squadStore.forUser(me?.userId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [me?.userId, version],
-  );
+  const { data = [] } = useQuery({
+    queryKey: ["squads", "mine", me?.userId],
+    enabled: !!me?.userId,
+    queryFn: () => squadStore.listMySquads(me!.userId),
+  });
+  return data as Squad[];
 }
 
-export function useSquad(squadId?: string): Squad | undefined {
-  const version = useSquadVersion();
-  return useMemo(
-    () => (squadId ? squadStore.get(squadId) : undefined),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [squadId, version],
-  );
+/** Public squads available to discover and request to join. */
+export function useDiscoverSquads() {
+  useSquadSync();
+  const me = useCurrentPlayer();
+  return useQuery({
+    queryKey: ["squads", "discover", me?.userId ?? "guest"],
+    queryFn: () => squadStore.listSquads(me?.userId),
+  });
+}
+
+export function useSquad(squadId?: string) {
+  useSquadSync();
+  const me = useCurrentPlayer();
+  return useQuery({
+    queryKey: ["squads", "detail", squadId, me?.userId ?? "guest"],
+    enabled: !!squadId,
+    queryFn: () => squadStore.getSquad(squadId!, me?.userId),
+  });
 }
 
 export function useSquadInvites() {
-  const version = useSquadVersion();
+  useSquadSync();
   const me = useCurrentPlayer();
-  return useMemo(
-    () => squadStore.invitesFor(me?.userId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [me?.userId, version],
-  );
+  const { data = [] } = useQuery({
+    queryKey: ["squads", "invites", me?.userId],
+    enabled: !!me?.userId,
+    queryFn: () => squadStore.invitesFor(me!.userId),
+  });
+  return data as Awaited<ReturnType<typeof squadStore.invitesFor>>;
+}
+
+export function useMyJoinRequests() {
+  const me = useCurrentPlayer();
+  const { data = {} } = useQuery({
+    queryKey: ["squads", "my-join-requests", me?.userId],
+    enabled: !!me?.userId,
+    queryFn: () => squadStore.myJoinRequests(me!.userId),
+  });
+  return data as Record<string, string>;
 }
 
 export interface MemberStats {
@@ -73,7 +111,7 @@ export function useMemberStats(userIds: string[]) {
     queryFn: async (): Promise<Record<string, MemberStats>> => {
       const { data } = await supabase
         .from("leaderboard_stats")
-        .select("user_id, rating, matches_played, matches_won")
+        .select("user_id, points, wins, losses, tournaments_played")
         .in("user_id", userIds);
 
       const out: Record<string, MemberStats> = {};
@@ -82,12 +120,12 @@ export function useMemberStats(userIds: string[]) {
           const { count } = await supabase
             .from("leaderboard_stats")
             .select("*", { count: "exact", head: true })
-            .gt("rating", row.rating ?? 0);
+            .gt("points", row.points ?? 0);
           out[row.user_id] = {
             userId: row.user_id,
-            rating: row.rating ?? 0,
-            matchesPlayed: row.matches_played ?? 0,
-            matchesWon: row.matches_won ?? 0,
+            rating: row.points ?? 0,
+            matchesPlayed: (row.wins ?? 0) + (row.losses ?? 0),
+            matchesWon: row.wins ?? 0,
             rank: (count ?? 0) + 1,
           };
         }),
@@ -108,29 +146,21 @@ export function usePlayerSearch(term: string) {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, username, avatar_url")
+        .select("user_id, username, avatar_url")
         .ilike("username", `%${q}%`)
         .limit(8);
-      return (data ?? []).filter((p: any) => p.id !== me?.userId);
+      return (data ?? [])
+        .map((p: any) => ({ id: p.user_id, username: p.username, avatar_url: p.avatar_url }))
+        .filter((p) => p.id !== me?.userId);
     },
   });
 }
 
-/** Best-effort in-app notification for the invited player. */
+/** Best-effort in-app notification (invite notifications also fire in the DB). */
 export function useNotifyInvite() {
-  return useCallback(
-    async (toUserId: string, squadName: string, fromUsername: string) => {
-      try {
-        await supabase.from("notifications").insert({
-          user_id: toUserId,
-          type: "system",
-          title: `Squad invite from ${fromUsername}`,
-          message: `You've been invited to join ${squadName}. Open Squads to accept.`,
-        } as any);
-      } catch {
-        /* notifications are best-effort */
-      }
-    },
-    [],
-  );
+  return useCallback(async (_toUserId: string, _squadName: string, _fromUsername: string) => {
+    /* handled by database trigger */
+  }, []);
 }
+
+export { useState };
