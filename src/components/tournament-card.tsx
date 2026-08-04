@@ -28,7 +28,7 @@ const gameIcons: Record<string, string> = {
   cod: "🎯",
   pubg: "🔫",
   fortnite: "🏗️",
-  apex: "🦊",
+  apex: "🥅",
   valorant: "🎮",
   other: "🎮",
 };

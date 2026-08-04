@@ -93,11 +93,11 @@ const features = [
   {
     icon: Gamepad2,
     title: "Multiple Games",
-    description: "Compete in FIFA, COD, PUBG, Fortnite, Apex Legends, and more.",
+    description: "Compete in FC 26, COD, PUBG, Fortnite, eFootball, and more.",
   },
 ];
 
-const games = ["FIFA", "Call of Duty", "PUBG", "Fortnite", "Apex Legends", "Valorant"];
+const games = ["FC 26", "Call of Duty", "PUBG", "Fortnite", "eFootball", "Valorant"];
 
 export default function HowItWorks() {
   return (

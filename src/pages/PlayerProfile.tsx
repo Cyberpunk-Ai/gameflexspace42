@@ -668,7 +668,7 @@ export default function PlayerProfile() {
                   <div>
                     <p className="font-display font-bold text-sm">{match.tournaments?.title || "Tournament Match"}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {match.tournaments?.game || "GameFlex eSports"} • Round {match.round}
+                      {match.tournaments?.game || "GameFlex"} • Round {match.round}
                     </p>
                   </div>
                   <Badge variant={match.winner_id === id ? "default" : "secondary"} className="rounded-lg font-bold">

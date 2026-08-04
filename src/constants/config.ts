@@ -1,7 +1,7 @@
 export const APP_NAME = "GameFlex";
-export const APP_TAGLINE = "The Ultimate Esports Platform";
+export const APP_TAGLINE = "The World’s Premier Gaming Ecosystem";
 export const APP_DESCRIPTION =
-  "Join tournaments, build your legacy, and compete in the ultimate esports arena.";
+  "Join tournaments, build your legacy, and compete in the modern gaming ecosystem.";
 
 export const CURRENCY = "KES";
 export const CURRENCY_SYMBOL = "KES";

@@ -88,14 +88,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#0b0b12" },
-      { title: "GameFlex Esports" },
-      { property: "og:title", content: "GameFlex Esports" },
+      { title: "GameFlex — Modern Gaming Ecosystem" },
+      { property: "og:title", content: "GameFlex — Modern Gaming Ecosystem" },
       {
         name: "description",
         content:
           "GameFlex is a technology company engineering products, communities, and experiences that shape the future of gaming and beyond.",
       },
-      { name: "twitter:title", content: "GameFlex Esports" },
+      { name: "twitter:title", content: "GameFlex — Modern Gaming Ecosystem" },
       { property: "og:description", content: "GameFlex is a technology company engineering products, communities, and experiences that shape the future of gaming and beyond." },
       { name: "twitter:description", content: "GameFlex is a technology company engineering products, communities, and experiences that shape the future of gaming and beyond." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/533sZ53rXARhEQvGSydswB00et92/social-images/social-1785632948620-social-image.webp" },

@@ -82,7 +82,7 @@ const faqCategories = [
       {
         question: "What games are supported?",
         answer:
-          "We currently support FIFA, Call of Duty, PUBG, Fortnite, Apex Legends, and Valorant. New games are added regularly based on community demand.",
+          "We currently support FC 26, Call of Duty, PUBG, Fortnite, eFootball, and Valorant. New games are added regularly based on community demand.",
       },
       {
         question: "How do I get game room codes?",

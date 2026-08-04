@@ -69,8 +69,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-              Kenya's premier gaming tournament platform. Compete, win, and earn with the best
-              gamers in the country.
+              The world's premier gaming ecosystem. Discover the complete gaming experience on one platform.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
